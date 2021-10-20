@@ -1,6 +1,9 @@
 package api
 
-import "github.com/shopspring/decimal"
+import (
+	"github.com/shopspring/decimal"
+	"time"
+)
 
 /*
 PUBLIC API GET REQUESTS
@@ -174,8 +177,9 @@ type GetAuthTradeHistoryForPairRequest struct {
 	// required: true
 	// Limit
 	// required: false
-	Pair  string `json:"currencyPair" url:"currencyPair"`
-	Limit int    `json:"limit" url:"limit"`
+	Pair  string 		`json:"currencyPair" url:"currencyPair"`
+	Limit int    		`json:"limit" url:"limit"`
+	StartTime time.Time `json:"startTime,omitempty" url:"startTime,omitempty"`
 }
 
 // GetSimpleBuyOrSellOrderStatusRequest is the request struct for GetSimpleBuyOrSellOrderStatus
