@@ -101,7 +101,7 @@ func (cl *Client) do(ctx context.Context, method, path string,
 				values.Del(key)
 			}
 		}
-		if method == http.MethodGet && values.Encode() != "" {
+		if method == http.MethodGet {
 			url = url + "?" + values.Encode()
 		} else {
 			body, err = json.Marshal(values)
