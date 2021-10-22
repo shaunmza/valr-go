@@ -104,7 +104,7 @@ func (cl *Client) do(ctx context.Context, method, path string,
 		if method == http.MethodGet {
 			url = url + "?" + values.Encode()
 		} else {
-			body, err = json.Marshal(values)
+			body, err = json.Marshal(req)
 			if err != nil {
 				return err
 			}
