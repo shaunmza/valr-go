@@ -85,7 +85,7 @@ func (cl *Client) do(ctx context.Context, method, path string,
 		log.Printf("valr: Request: %#v", req)
 	}
 
-	var body string
+	var body []byte
 	if req != nil {
 		values, err := MakeURLValues(req)
 		if err != nil {
@@ -104,11 +104,14 @@ func (cl *Client) do(ctx context.Context, method, path string,
 		if method == http.MethodGet && values.Encode() != "" {
 			url = url + "?" + values.Encode()
 		} else {
-			body = values.Encode()
+			body, err = json.Marshal(values)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
-	httpReq, err := http.NewRequest(method, url, bytes.NewReader([]byte(body)))
+	httpReq, err := http.NewRequest(method, url, bytes.NewReader(body))
 	if err != nil {
 		return err
 	}
@@ -123,7 +126,7 @@ func (cl *Client) do(ctx context.Context, method, path string,
 		now := time.Now()
 		timestampString := strconv.FormatInt(now.UnixNano()/1000000, 10)
 		path := strings.Replace(url, "https://api.valr.com", "", -1)
-		signature := signRequest(cl.apiKeySecret, timestampString, method, path, []byte(body))
+		signature := signRequest(cl.apiKeySecret, timestampString, method, path, body)
 		httpReq.Header.Set("X-VALR-SIGNATURE", signature)
 		httpReq.Header.Set("X-VALR-TIMESTAMP", timestampString) // This might need to be in unix format
 	}
