@@ -173,7 +173,7 @@ type OpenOrder struct {
 type OrderReceipt struct {
 	OrderID          string          `json:"orderId"`
 	CustomerOrderID  string          `json:"customerOrderId"`
-	OrderStatusType  bool            `json:"orderStatusType"`
+	OrderStatusType  string          `json:"orderStatusType"`
 	Pair             string          `json:"currencyPair"`
 	AveragePrice     decimal.Decimal `json:"averagePrice"`
 	OriginalPrice    decimal.Decimal `json:"originalPrice"`
