@@ -145,12 +145,12 @@ func (cl *Client) do(ctx context.Context, method, path string,
 		log.Printf("Response: %s", string(respBody))
 	}
 
-	if httpRes.StatusCode != http.StatusOK {
-		return fmt.Errorf("valr: error response (%d %s)",
-			httpRes.StatusCode, http.StatusText(httpRes.StatusCode))
+	if httpRes.StatusCode == http.StatusOK || httpRes.StatusCode == http.StatusAccepted  {
+		return json.Unmarshal(respBody, res)
 	}
 
-	return json.Unmarshal(respBody, res)
+	return fmt.Errorf("valr: error response (%d %s)",
+		httpRes.StatusCode, http.StatusText(httpRes.StatusCode))
 }
 
 func findTags(str string) []string {
