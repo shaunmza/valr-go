@@ -85,7 +85,7 @@ func (cl *Client) do(ctx context.Context, method, path string,
 		log.Printf("valr: Request: %#v", req)
 	}
 
-	var body []byte
+	var body string
 	if req != nil {
 		values, err := MakeURLValues(req)
 		if err != nil {
@@ -104,11 +104,11 @@ func (cl *Client) do(ctx context.Context, method, path string,
 		if method == http.MethodGet && values.Encode() != "" {
 			url = url + "?" + values.Encode()
 		} else {
-			body = []byte(values.Encode())
+			body = values.Encode()
 		}
 	}
 
-	httpReq, err := http.NewRequest(method, url, bytes.NewReader(body))
+	httpReq, err := http.NewRequest(method, url, bytes.NewReader([]byte(body)))
 	if err != nil {
 		return err
 	}
@@ -123,7 +123,7 @@ func (cl *Client) do(ctx context.Context, method, path string,
 		now := time.Now()
 		timestampString := strconv.FormatInt(now.UnixNano()/1000000, 10)
 		path := strings.Replace(url, "https://api.valr.com", "", -1)
-		signature := signRequest(cl.apiKeySecret, timestampString, method, path, body)
+		signature := signRequest(cl.apiKeySecret, timestampString, method, path, []byte(body))
 		httpReq.Header.Set("X-VALR-SIGNATURE", signature)
 		httpReq.Header.Set("X-VALR-TIMESTAMP", timestampString) // This might need to be in unix format
 	}
@@ -134,12 +134,12 @@ func (cl *Client) do(ctx context.Context, method, path string,
 	}
 	defer httpRes.Body.Close()
 
-	body, err = ioutil.ReadAll(httpRes.Body)
+	respBody, err := ioutil.ReadAll(httpRes.Body)
 	if err != nil {
 		return err
 	}
 	if cl.debug {
-		log.Printf("Response: %s", string(body))
+		log.Printf("Response: %s", string(respBody))
 	}
 
 	if httpRes.StatusCode != http.StatusOK {
@@ -147,7 +147,7 @@ func (cl *Client) do(ctx context.Context, method, path string,
 			httpRes.StatusCode, http.StatusText(httpRes.StatusCode))
 	}
 
-	return json.Unmarshal(body, res)
+	return json.Unmarshal(respBody, res)
 }
 
 func findTags(str string) []string {
